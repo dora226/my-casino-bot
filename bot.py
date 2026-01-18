@@ -16,7 +16,7 @@ def keep_alive():
 keep_alive()
 
 # --- НАСТРОЙКИ ---
-TOKEN = "8412093219:AAEGgrvH2RuNhmPVAY12KnQkG25k3MwkuXI"
+TOKEN = "8412093219:AAEFm6XxDYeJm9a07ul_IIKZCS9BRKpnbug"
 bot = telebot.TeleBot(TOKEN)
 ADMIN_ID = 7232292366  # Твой ID
 
