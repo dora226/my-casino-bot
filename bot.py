@@ -4,21 +4,30 @@ import random
 from flask import Flask
 from threading import Thread
 
-# --- RENDER ALIVE BLOCK ---
+# --- ПОЛНАЯ ЗАЩИТА ОТ ОШИБОК RENDER (PORT SCAN TIMEOUT) ---
 app = Flask('')
+
 @app.route('/')
-def home(): return "Casino Active"
+def home():
+    return "Casino is running 24/7!"
+
 def run():
+    # Render автоматически подставит нужный порт
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
+
 def keep_alive():
-    Thread(target=run, daemon=True).start()
+    t = Thread(target=run, daemon=True)
+    t.start()
+
+# Запускаем веб-сервер перед стартом бота
 keep_alive()
 
-# --- НАСТРОЙКИ ---
+# --- НАСТРОЙКИ БОТА ---
+# Твой новый токен, который ты скинул
 TOKEN = "8412093219:AAGmPVtgX1wA133UGsya3UnDf_B5SPphBkM"
 bot = telebot.TeleBot(TOKEN)
-ADMIN_ID = 7232292366  # Твой ID
+ADMIN_ID = 7232292366 
 
 users = {} 
 admin_lucky_mode = True 
@@ -26,6 +35,8 @@ admin_lucky_mode = True
 def get_bal(uid):
     if uid not in users: users[uid] = 1000
     return users[uid]
+
+# --- КОМАНДЫ ---
 
 @bot.message_handler(commands=['id'])
 def get_user_id(message):
@@ -41,7 +52,7 @@ def toggle_lucky(message):
     if message.from_user.id != ADMIN_ID: return
     admin_lucky_mode = not admin_lucky_mode
     status = "✅ ВКЛЮЧЕН" if admin_lucky_mode else "❌ ВЫКЛЮЧЕН"
-    bot.reply_to(message, f"🎰 Повышенный шанс: **{status}**", parse_mode="Markdown")
+    bot.reply_to(message, f"🎰 Режим повышенного шанса: **{status}**", parse_mode="Markdown")
 
 @bot.message_handler(commands=['start', 'profile'])
 def profile(message):
@@ -61,8 +72,10 @@ def slots(message):
     except: return bot.reply_to(message, "Использование: `/slots 100`", parse_mode="Markdown")
     if bet > get_bal(uid) or bet <= 0: return bot.reply_to(message, "❌ Недостаточно средств!")
 
+    # 50% шанс для тебя, 15% для остальных
     threshold = 50 if (uid == ADMIN_ID and admin_lucky_mode) else 15
     emojis = ["💎", "🎰", "🍒", "7️⃣"]
+    
     if random.randint(1, 100) <= threshold:
         res = [random.choice(emojis)] * 3
         users[uid] += bet * 3
@@ -83,5 +96,6 @@ def give_money(message):
         bot.reply_to(message, f"✅ Выдано {amount}$ игроку `{target}`", parse_mode="Markdown")
     except: bot.reply_to(message, "Ошибка! `/give [id] [сумма]`")
 
+# Бесконечный цикл без вылетов
 if __name__ == "__main__":
-    bot.infinity_polling()
+    bot.infinity_polling(timeout=10, long_polling_timeout=5)
