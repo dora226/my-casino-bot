@@ -2,7 +2,7 @@ import telebot, sqlite3, random, time
 from datetime import datetime, timedelta
 
 # --- НАСТРОЙКИ ---
-TOKEN = "8412093219:AAGcC6jTvTOkpduhx5Sdgruo1u3K_ZY2Kgk"
+TOKEN = "8412093219:AAHCL63Tq58_aYi5YgpVP5m-xOvDSma-V4M"
 OWNER_ID = 7232292366 
 bot = telebot.TeleBot(TOKEN, parse_mode="Markdown")
 
